@@ -1,0 +1,50 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+xmlns:dt="http://www.thymeleaf.org/dandelion/datatables">
+<head>
+    <title>Getting Started: Handling Form Submission</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+		#tableId {
+		    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+		    border-collapse: collapse;
+		    width: 100%;
+		}
+		
+		#tableId td, #tableId th {
+		    border: 1px solid #ddd;
+		    padding: 8px;
+		}
+		
+		#tableId th {
+		    padding-top: 12px;
+		    padding-bottom: 12px;
+		    text-align: left;
+		    background-color: #4CAF50;
+		    color: white;
+		}
+	</style>
+</head>
+<body>
+    <div class="span12">
+    <h1>Calculated Funds</h1>
+   	 	<th:block th:object="${calcRecord}">
+   	 		<p>Comitted money: <p th:text="${calcRecord.comittedResource}"></p></p>
+   	 		<p>Unused money: <p th:text="${calcRecord.unusedResource}"></p></p>
+    		<table id="tableId" dt:table="true">
+      			<tr>
+			      	<th>ID</th>
+			        <th>Name</th>
+			        <th>Money</th>
+      			</tr>
+    			<tr  th:each="item : *{calcFundsList}">
+			      	<td th:text="${item.originalFund.ID}"></td>
+			        <td th:text="${item.originalFund.name}">name</td>
+        			<td th:text="${item.moneyResourse}">10</td>
+      			</tr>
+    		</table>
+    	</th:block>
+ 	</div>
+    <a href="/calculator">New calculation</a>
+</body>
+</html>
