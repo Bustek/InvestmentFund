@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org"
 xmlns:dt="http://www.thymeleaf.org/dandelion/datatables">
 <head>
-    <title>Getting Started: Handling Form Submission</title>
+    <title>Calculated Funds</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <style>
 		#tableId {
@@ -28,9 +28,9 @@ xmlns:dt="http://www.thymeleaf.org/dandelion/datatables">
 <body>
     <div class="span12">
     <h1>Calculated Funds</h1>
-   	 	<th:block th:object="${calcRecord}">
-   	 		<p>Comitted money: <p th:text="${calcRecord.comittedResource}"></p></p>
-   	 		<p>Unused money: <p th:text="${calcRecord.unusedResource}"></p></p>
+   	 	<th:block th:object="${calculatedRecord}">
+   	 		<p>Comitted money: <p th:text="${calculatedRecord.comittedResource}"></p></p>
+   	 		<p>Unused money: <p th:text="${calculatedRecord.unusedResource}"></p></p>
     		<table id="tableId" dt:table="true">
       			<tr>
 			      	<th>ID</th>
