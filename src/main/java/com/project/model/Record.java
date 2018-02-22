@@ -15,24 +15,30 @@ public class Record {
 	private int moneyAmount;
 	private InvestStyle style;
 	private List<Fund> fundsList = new ArrayList<>();
-	
-	public Record() {}
-	
+
+	public Record() {
+	}
+
 	public int getMoneyAmount() {
 		return moneyAmount;
 	}
+
 	public void setMoneyAmount(int moneyAmount) {
 		this.moneyAmount = moneyAmount;
 	}
+
 	public InvestStyle getStyle() {
 		return style;
 	}
+
 	public void setStyle(InvestStyle style) {
 		this.style = style;
 	}
+
 	public List<Fund> getFundsList() {
 		return fundsList;
 	}
+
 	public void setFundsList(List<Fund> fundsList) {
 		this.fundsList = fundsList;
 	}

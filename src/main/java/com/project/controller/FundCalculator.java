@@ -1,7 +1,11 @@
 package com.project.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import com.project.model.CalculatedFund;
 import com.project.model.CalculatedRecord;
@@ -10,79 +14,75 @@ import com.project.model.Fund;
 import com.project.model.FundType;
 import com.project.model.InvestStyle;
 import com.project.model.Record;
-import com.project.model.RecordInProgress;
 
 public class FundCalculator {
-		
-	static int DIVIDER = 100;
 
-	public CalculatedRecord calculateFunds(Record record) throws CalculatorException {
-		RecordInProgress recordInProgress = new RecordInProgress();
-		groupFundsByType(record, recordInProgress);
-		int unusedResource = record.getMoneyAmount()%DIVIDER;
-		recordInProgress.setUnusedResource(unusedResource);
-		calculateAvailableResourceForGroups(record, recordInProgress);
-		List<CalculatedFund> calculatedFundsList = new ArrayList<>();
-		generateCalulatedFundsAndAddTo(recordInProgress);
-		
-		return  new CalculatedRecord(record, recordInProgress);
+	private int DIVIDER = 100;
+
+	public CalculatedRecord splitGivenMoneyIntoFundsAccordingToChosenStyle(Record record) throws CalculatorException {
+		CalculatedRecord calculatedRecord = new CalculatedRecord();
+		calculatedRecord.setUnusedResource(record.getMoneyAmount() % DIVIDER);
+		calculatedRecord.setComittedResource(record.getMoneyAmount() - calculatedRecord.getUnusedResource());
+		calculatedRecord.setCalcFundsList(getCalculatedFunds(record, calculatedRecord.getComittedResource()));
+
+		return calculatedRecord;
 	}
 
-	private void groupFundsByType(Record record, RecordInProgress recordInProgress) throws CalculatorException {
+	private List<CalculatedFund> getCalculatedFunds(Record record, int comittedResource) throws CalculatorException {
+		List<CalculatedFund> calculatedFundsList = new ArrayList<>();
+		Map<FundType, List<Fund>> fundsByType = getGroupedFundsByType(record);
+		for (FundType type : FundType.values()) {
+			calculatedFundsList
+					.addAll(getComputedFundsForGroup(fundsByType.get(type), comittedResource, record.getStyle(), type));
+		}
+		return calculatedFundsList;
+	}
+
+	private Map<FundType, List<Fund>> getGroupedFundsByType(Record record) throws CalculatorException {
+		Map<FundType, List<Fund>> fundsByType = new HashMap<>();
 		List<Fund> chosenFunds = record.getFundsList();
-		if(!chosenFunds.isEmpty()) {
-			chosenFunds.forEach(fund -> addToRecordInProgress(fund, recordInProgress));
+		if (!chosenFunds.isEmpty()) {
+			for (FundType type : FundType.values()) {
+				List<Fund> groupedByType = chosenFunds.stream().filter(fund -> fund.getType() == type)
+						.collect(Collectors.toList());
+				fundsByType.put(type, groupedByType);
+			}
 		} else {
 			throw new CalculatorException("Please choose at least 1 Fund");
 		}
+		return fundsByType;
 	}
 
-	private void addToRecordInProgress(Fund fund, RecordInProgress recordInProgress) {
-		FundType type = fund.getType();
+	private List<CalculatedFund> getComputedFundsForGroup(List<Fund> groupedFundsList, int comittedResource,
+			InvestStyle style, FundType type) throws CalculatorException {
+		int resourceForGroup = (int) (comittedResource * getTypePercentage(type, style));
+		return getCalculatedFunds(groupedFundsList, resourceForGroup);
+	}
+
+	private double getTypePercentage(FundType type, InvestStyle style) throws CalculatorException {
 		switch (type) {
 		case Polish:
-			recordInProgress.getPolishFunds().add(fund);
-			break;
+			return style.getPolishFundPart();
 		case Foreign:
-			recordInProgress.getForeignFunds().add(fund);
-			break;
+			return style.getForeignFundPart();
 		case Monetary:
-			recordInProgress.getMonetaryFunds().add(fund);
-			break;
+			return style.getMonetaryFundPart();
+		default:
+			throw new CalculatorException("Couldn't resolve type Fund type: " + type.toString());
 		}
 	}
-	
 
-	private void calculateAvailableResourceForGroups(Record record, RecordInProgress recordInProgress) {
-		final int availableResource = record.getMoneyAmount() - recordInProgress.getUnusedResource();
-		recordInProgress.setUsedResource(availableResource);
-		InvestStyle style = record.getStyle();
-		recordInProgress.setPolishResource((int)(availableResource*style.getPolishFundPart()));
-		recordInProgress.setForeignResource((int)(availableResource*style.getForeignFundPart()));
-		recordInProgress.setMonetaryResource((int)(availableResource*style.getMonetaryFundPart()));
-	}
-	
-	private void generateCalulatedFundsAndAddTo(RecordInProgress recordInProgress) {
-		List<CalculatedFund> calculatedFundsList = recordInProgress.getCalculatedFundsList();
-		calculateFundForList(recordInProgress.getPolishFunds(), recordInProgress.getPolishResource(), calculatedFundsList);
-		calculateFundForList(recordInProgress.getForeignFunds(), recordInProgress.getForeignResource(), calculatedFundsList);
-		calculateFundForList(recordInProgress.getMonetaryFunds(), recordInProgress.getMonetaryResource(), calculatedFundsList);
-	}
-
-	private void calculateFundForList(List<Fund> fundsList, int resource, List<CalculatedFund> calculatedFundsList) {
-		List<CalculatedFund> calculatedList = new ArrayList();
-		int evenAmountForEachFund = (int) resource/fundsList.size();
+	private List<CalculatedFund> getCalculatedFunds(List<Fund> fundsList, int resource) {
+		List<CalculatedFund> calculatedList = new ArrayList<>();
+		int evenAmountForEachFund = (int) resource / fundsList.size();
 		fundsList.forEach(fund -> calculatedList.add(new CalculatedFund(fund, evenAmountForEachFund)));
 		checkAndAddUnusedResourceForListIfNeeded(calculatedList, resource);
-		calculatedFundsList.addAll(calculatedList);
+		return calculatedList;
 	}
 
 	private void checkAndAddUnusedResourceForListIfNeeded(List<CalculatedFund> calculatedList, int resource) {
-		int sum = 0;
-		for(CalculatedFund fund : calculatedList) {
-			sum += fund.getMoneyResourse();
-		}
-		if(sum != resource) {
+		int sum = calculatedList.stream().mapToInt(CalculatedFund::getMoneyResourse).sum();
+		if (sum != resource) {
 			int toAdd = resource - sum;
 			CalculatedFund firstFund = calculatedList.get(0);
 			firstFund.setMoneyResourse(firstFund.getMoneyResourse() + toAdd);

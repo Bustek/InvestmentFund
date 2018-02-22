@@ -20,25 +20,25 @@ import com.project.utils.Utils;
 
 @Controller
 public class AppController {
-	
-	@GetMapping("/calculator")
-    public String greetingForm(Record record) {
-        return "calculator";
-    }
 
-    @PostMapping("/calculator")
-    public String greetingSubmit(@Valid Record record, BindingResult bindingResult, Model model) {
-    	if (bindingResult.hasErrors()) {
-    		return "calculator";
-    	}
-    	FundCalculator calculator = new FundCalculator();
-    	record.getFundsList().addAll(Utils.generateDefaultFunds());
-    	try {
-    		CalculatedRecord calculatedRecord = calculator.calculateFunds(record);
-    		model.addAttribute("calcRecord", calculatedRecord);
-    	} catch (CalculatorException e) {
-    		// Return error page
-    	}
-        return "result";
-    }
+	@GetMapping("/calculator")
+	public String calculatorForm(Record record) {
+		return "calculator";
+	}
+
+	@PostMapping("/calculator")
+	public String calculatorSubmit(@Valid Record record, BindingResult bindingResult, Model model) {
+		if (bindingResult.hasErrors()) {
+			return "calculator";
+		}
+		FundCalculator calculator = new FundCalculator();
+		record.getFundsList().addAll(Utils.generateDefaultFunds());
+		try {
+			CalculatedRecord calculatedRecord = calculator.splitGivenMoneyIntoFundsAccordingToChosenStyle(record);
+			model.addAttribute("calcRecord", calculatedRecord);
+		} catch (CalculatorException e) {
+			// Return error page
+		}
+		return "result";
+	}
 }
