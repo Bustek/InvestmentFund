@@ -33,7 +33,7 @@ public class FundCalculatorTest {
 		record.getFundsList().add(fund2);
 		record.getFundsList().add(fund3);
 		CalculatedFund calcFundToCheck = null;
-		CalculatedRecord calculatedRecord = calculator.splitGivenMoneyIntoFundsAccordingToChosenStyle(record);
+		CalculatedRecord calculatedRecord = calculator.splitMoney(record);
 		for(CalculatedFund calculatedFund : calculatedRecord.getCalcFundsList()) {
 			if(calculatedFund.getOriginalFund() == fund1) {
 				calcFundToCheck = calculatedFund;
@@ -47,7 +47,7 @@ public class FundCalculatorTest {
 		FundCalculator calculator = new FundCalculator();
 		Record record = new Record();
 		record.getFundsList().clear();
-		calculator.splitGivenMoneyIntoFundsAccordingToChosenStyle(record);
+		calculator.splitMoney(record);
 	}
 	
 	@Test
@@ -63,7 +63,7 @@ public class FundCalculatorTest {
 		record.getFundsList().add(fund1);
 		record.getFundsList().add(fund2);
 		record.getFundsList().add(fund3);
-		CalculatedRecord calculatedRecord = calculator.splitGivenMoneyIntoFundsAccordingToChosenStyle(record);
+		CalculatedRecord calculatedRecord = calculator.splitMoney(record);
 		
 		assertEquals(4, calculatedRecord.getUnusedResource());
 	}
@@ -85,7 +85,7 @@ public class FundCalculatorTest {
 		record.getFundsList().add(fund4);
 		record.getFundsList().add(fund5);
 		CalculatedFund calcFundToCheck = null;
-		CalculatedRecord calculatedRecord = calculator.splitGivenMoneyIntoFundsAccordingToChosenStyle(record);
+		CalculatedRecord calculatedRecord = calculator.splitMoney(record);
 		List<CalculatedFund> monetaryFundsList = new ArrayList<>();
 		for(CalculatedFund calculatedFund : calculatedRecord.getCalcFundsList()) {
 			if(calculatedFund.getOriginalFund().getType() == FundType.Monetary) {

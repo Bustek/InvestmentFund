@@ -34,7 +34,7 @@ public class AppController {
 		FundCalculator calculator = new FundCalculator();
 		record.getFundsList().addAll(Utils.generateDefaultFunds());
 		try {
-			CalculatedRecord calculatedRecord = calculator.splitGivenMoneyIntoFundsAccordingToChosenStyle(record);
+			CalculatedRecord calculatedRecord = calculator.splitMoney(record);
 			model.addAttribute("calculatedRecord", calculatedRecord);
 		} catch (CalculatorException e) {
 			return "error";
