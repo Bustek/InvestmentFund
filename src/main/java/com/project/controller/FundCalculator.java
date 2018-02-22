@@ -19,7 +19,13 @@ public class FundCalculator {
 
 	private int DIVIDER = 100;
 
-	public CalculatedRecord splitGivenMoneyIntoFundsAccordingToChosenStyle(Record record) throws CalculatorException {
+	/**
+	 * Split money declared in record between Funds provided in record according to given style.
+	 *
+	 * @param  record created using Form in Calculator.html
+	 * @return      calculatedRecord which contains calculatedFunds
+	 */
+	public CalculatedRecord splitMoney(Record record) throws CalculatorException {
 		CalculatedRecord calculatedRecord = new CalculatedRecord();
 		calculatedRecord.setUnusedResource(record.getMoneyAmount() % DIVIDER);
 		calculatedRecord.setComittedResource(record.getMoneyAmount() - calculatedRecord.getUnusedResource());
